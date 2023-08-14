@@ -16,25 +16,31 @@ export class NewsRepository implements OnModuleInit {
             console.log('News Database connection is not ready!')
     }
     async saveArticlesToDb(articlesData: ArticleDocument[]) {
-        const articlesToSave = articlesData.map(articleData => {
-            const tags = ['category', 'business']; // Customize the tags as needed
-            const searchIn = 'top-headlines'; // Set the searchIn property
-            const article = new this.ArticleModel({
-                ...articleData,
-                searchIn,
-                tags,
-            });
-            return article;
-        });
+        // const articlesToSave = articlesData.map(articleData => {
+        //     const tags = ['category', 'business']; // Customize the tags as needed
+        //     const searchIn = 'top-headlines'; // Set the searchIn property
+        //     const article = new this.ArticleModel({
+        //         ...articleData,
+        //         searchIn,
+        //         tags,
+        //     });
+        //     return article;
+        // });
 
-        console.log('articlesToSave:', articlesToSave)
-        const savedArticles = await this.ArticleModel.insertMany(articlesToSave);
-        return savedArticles;
+        // console.log('articlesToSave:', articlesToSave)
+        // const savedArticles = await this.ArticleModel.insertMany(articlesToSave);
+        // return savedArticles;
 
         // extract articles array from response
 
         // push articles array into mongo articles collection
 
+    }
+
+    async getAllData() {
+        const allArticles = await this.ArticleModel.find().lean()
+        console.log('allArticles:', allArticles)
+        return allArticles
     }
 
 }

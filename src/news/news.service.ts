@@ -28,13 +28,19 @@ export class NewsService {
         // build the url string (as in frontend query)
 
         // create api call using axiosÇ
-        const res = await axios.get(`https://newsapi.org/v2/top-headlines?category=business`, config)
-        // console.log('res:', res)
-        // return response to repository
+        // const res = await axios.get(`https://newsapi.org/v2/top-headlines?category=business`, config)
+        // // console.log('res:', res)
+        // // return response to repository
 
-        if (res.data && res.data.articles && res.data.articles.length > 0) {
-            await this.newsRepository.saveArticlesToDb(res.data.articles);
-        }
+        // if (res.data && res.data.articles && res.data.articles.length > 0) {
+        //     await this.newsRepository.saveArticlesToDb(res.data.articles);
+        // }
+    }
+
+    async getAllData() {
+        return await this.newsRepository.getAllData()
     }
 
 }
+
+
