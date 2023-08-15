@@ -19,7 +19,7 @@ export class Article {
     _id: mongoose.Types.ObjectId
 
     @Prop({ type: String, required: true, default: topHeadlines })
-    searchIn: string;
+    type: string;
 
     @Prop({ type: Source })
     source: Source;
@@ -57,3 +57,4 @@ export class Article {
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);
+
