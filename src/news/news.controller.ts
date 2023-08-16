@@ -1,6 +1,7 @@
 import { Body, Controller, Get, NotFoundException, Post, Query, Req } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { FilterBy } from 'src/models/filterBy.interface';
+import { CreateArticleDto } from './dtos/create-article.dto';
 
 @Controller('news/')
 export class NewsController {
@@ -8,11 +9,12 @@ export class NewsController {
 
     @Post('save')
     async addArticles(
-        @Body() requestBody: { filterBy: FilterBy, searchQuery: string, page: number }) {
-        const { filterBy, searchQuery, page } = requestBody;
+        @Body() requestBody: CreateArticleDto) {
+        const filterBy: FilterBy = requestBody.filterBy
+        const { searchQuery, page } = requestBody;
         const reqQuery = this.newsService.buildApiRequestQuery(filterBy, searchQuery, 1)
-        const headlines = await this.newsService.fetchArticlesFromApiAndSaveToDb(reqQuery, filterBy, page)
-        // console.log('headlines controller:', headlines)
+        await this.newsService.fetchArticlesFromApiAndSaveToDb(reqQuery, filterBy, page)
+
     }
 
     @Get()
@@ -28,11 +30,13 @@ export class NewsController {
 
     @Post('articles')
     async getFilteredData(
-        @Body() requestBody: { filterBy: FilterBy, searchQuery: string, page: number }) {
+        @Body() requestBody: CreateArticleDto) {
         const { filterBy, searchQuery, page } = requestBody;
         try {
             const articles = await this.newsService.getFilteredArticlesFromDb(filterBy, searchQuery, page)
-            // console.log('articles from controller:', articles)
+            if (!articles) {
+                throw new NotFoundException('No articles were found')
+            }
             return articles
         } catch (err) {
             console.log('Failed querying articles', err)

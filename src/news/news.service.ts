@@ -45,9 +45,15 @@ export class NewsService {
             await this.newsRepository.saveArticlesToDb(res.data.articles, filterBy);
         }
     }
- 
+
     async getAllDataFromDb() {
         return await this.newsRepository.getAllData()
+    }
+
+    async getFilteredArticlesFromDb(filterBy: FilterBy, searchQuery: string, page: number) {
+        const query = this.buildDbQueryFromFilter(filterBy, searchQuery)
+        const articles = await this.newsRepository.getFilteredArticles(query, searchQuery, page)
+        return articles
     }
 
     private buildDbQueryFromFilter(filterBy: FilterBy, searchQuery: string) {
@@ -81,6 +87,9 @@ export class NewsService {
             query.dates.push(filterBy.dates.from)
             query.dates.push(filterBy.dates.to)
         }
+        // if (searchQuery && searchQuery.length > 0) {
+        //     query.searchQuery = searchQuery
+        // }
         console.log('query:', query)
         return query
     }
@@ -133,12 +142,6 @@ export class NewsService {
             return reqQuery
 
         }
-    }
-
-    async getFilteredArticlesFromDb(filterBy: FilterBy, searchQuery: string, page: number) {
-        const query = this.buildDbQueryFromFilter(filterBy, searchQuery)
-        const articles = await this.newsRepository.getFilteredArticles(query, page)
-        return articles
     }
 
 }

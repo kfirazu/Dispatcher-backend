@@ -1,40 +1,21 @@
-import { IsMongoId, IsObject, IsString } from "class-validator"
-import { Source } from "../article.schema"
-import mongoose from "mongoose"
-
+import { IsString, IsNumber, ValidateNested, IsNotEmpty } from "class-validator"
+import { Type } from 'class-transformer'
+import { FilterByDto } from "./filter-by.dto"
 
 export class CreateArticleDto {
 
-    @IsString()
-    searchIn: string
-    @IsObject()
-    source: Source
-    @IsString()
-
-    author: string
+    @ValidateNested()
+    @IsNotEmpty()
+    @Type(() => FilterByDto)
+    filterBy: FilterByDto
 
     @IsString()
+    searchQuery: string
 
-    title: string
-
-    @IsString()
-
-    description: string
-
-    @IsString()
-
-    url: string
-
-
-    urlToImage: string | null
-
-    @IsString()
-    publishedAt: string
-
-    @IsString()
-    content: string
-
-    tags: string[]
+    @IsNumber()
+    page: number
 
 }
+
+
 

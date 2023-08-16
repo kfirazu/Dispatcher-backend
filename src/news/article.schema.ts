@@ -1,16 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { IsObject, IsString, IsUrl, IsArray } from "class-validator"
+
 
 export type ArticleDocument = HydratedDocument<Article>;
 
 const topHeadlines = 'top-headlines'
 
+@Schema()
 export class Source {
+    @IsString()
     id: string;
+    @IsString()
     name: string;
 }
 
-@Schema()
+@Schema({ timestamps: true })
 export class Article {
 
     @Prop({
@@ -19,42 +24,42 @@ export class Article {
     _id: mongoose.Types.ObjectId
 
     @Prop({ type: String, required: true, default: topHeadlines })
-    type: string;
+    type: string
 
     @Prop({ type: Source })
-    source: Source;
+    source: Source
 
-    @Prop()
+    @Prop({ type: String })
     author: string | null
 
 
-    @Prop()
-    title: string;
+    @Prop({ type: String })
+    title: string
 
 
-    @Prop()
-    description: string;
+    @Prop({ type: String })
+    description: string
 
 
-    @Prop()
-    url: string;
+    @Prop({ type: String })
+    url: string
 
 
-    @Prop()
+    @Prop({ type: String })
     urlToImage: string | null
 
 
-    @Prop()
-    publishedAt: string;
+    @Prop({ type: Date })
+    publishedAt: Date
 
 
-    @Prop()
-    content: string;
+    @Prop({ type: String })
+    content: string
 
-    @Prop([String])
-    tags: string[];
+    @Prop({ type: [String] })
+    tags: string[]
 
 }
 
-export const ArticleSchema = SchemaFactory.createForClass(Article);
+export const ArticleSchema = SchemaFactory.createForClass(Article)
 

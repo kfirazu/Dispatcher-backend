@@ -1,5 +1,5 @@
 export interface FilterBy {
-    [key: string]: string | DateOptions
+    // [key: string]: string | DateOptions
     type: string;
     source: string;
     category: string;
