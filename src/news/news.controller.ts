@@ -1,7 +1,7 @@
 import { Body, Controller, Get, NotFoundException, Post, Query, Req } from '@nestjs/common';
 import { NewsService } from './news.service';
-import { FilterBy } from 'src/models/filterBy.interface';
-import { CreateArticleDto } from './dtos/create-article.dto';
+import { FilterBy } from 'src/models/filter-by.interface';
+import { SearchArticlesDto } from './dtos/search-articles.dto';
 
 @Controller('news/')
 export class NewsController {
@@ -9,7 +9,7 @@ export class NewsController {
 
     @Post('save')
     async addArticles(
-        @Body() requestBody: CreateArticleDto) {
+        @Body() requestBody: SearchArticlesDto) {
         const filterBy: FilterBy = requestBody.filterBy
         const { searchQuery, page } = requestBody;
         const reqQuery = this.newsService.buildApiRequestQuery(filterBy, searchQuery, 1)
@@ -22,7 +22,7 @@ export class NewsController {
         // get all articles from db
         const articles = await this.newsService.getAllDataFromDb()
         if (!articles || !articles.length) {
-            throw new NotFoundException('No articles found')
+            return []
         }
         console.log('articles from controller:', articles)
         return articles
@@ -30,18 +30,14 @@ export class NewsController {
 
     @Post('articles')
     async getFilteredData(
-        @Body() requestBody: CreateArticleDto) {
-        const { filterBy, searchQuery, page } = requestBody;
-        try {
-            const articles = await this.newsService.getFilteredArticlesFromDb(filterBy, searchQuery, page)
-            if (!articles) {
-                throw new NotFoundException('No articles were found')
-            }
-            return articles
-        } catch (err) {
-            console.log('Failed querying articles', err)
-            throw err
+        @Body() requestBody: SearchArticlesDto) {
+        const { filterBy, searchQuery, page } = requestBody
+        const articles = await this.newsService.getFilteredArticlesFromDb(filterBy, searchQuery, page)
+        if (!articles) {
+            return []
         }
+        return articles
+
     }
 }
 

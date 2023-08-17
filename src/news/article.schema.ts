@@ -7,13 +7,15 @@ export type ArticleDocument = HydratedDocument<Article>;
 
 const topHeadlines = 'top-headlines'
 
+
 @Schema()
 export class Source {
-    @IsString()
+    @Prop({ type: String })
     id: string;
-    @IsString()
+    @Prop({ type: String })
     name: string;
 }
+
 
 @Schema({ timestamps: true })
 export class Article {
@@ -27,34 +29,34 @@ export class Article {
     type: string
 
     @Prop({ type: Source })
-    source: Source
+    source?: Source
 
     @Prop({ type: String })
-    author: string | null
-
-
-    @Prop({ type: String })
-    title: string
+    author?: string | null
 
 
     @Prop({ type: String })
-    description: string
+    title?: string
 
 
     @Prop({ type: String })
-    url: string
+    description?: string
 
 
     @Prop({ type: String })
-    urlToImage: string | null
+    url?: string
+
+
+    @Prop({ type: String })
+    urlToImage?: string | null
 
 
     @Prop({ type: Date })
-    publishedAt: Date
+    publishedAt?: Date
 
 
     @Prop({ type: String })
-    content: string
+    content?: string
 
     @Prop({ type: [String] })
     tags: string[]

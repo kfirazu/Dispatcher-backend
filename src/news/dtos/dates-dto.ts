@@ -1,4 +1,4 @@
-import { IsString } from "class-validator"
+import { IsString, IsDateString } from "class-validator"
 import { Schema } from '@nestjs/mongoose';
 
 
@@ -6,9 +6,9 @@ import { Schema } from '@nestjs/mongoose';
 @Schema()
 export class DatesDto {
 
-    @IsString()
+    @IsDateString()
     from: string
 
-    @IsString()
+    @IsDateString()
     to: string
 }

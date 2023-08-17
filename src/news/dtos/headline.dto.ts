@@ -1,11 +1,19 @@
-import { IsObject, IsString, IsUrl, IsDateString } from "class-validator"
-import { Source } from "../article.schema"
+import { IsObject, IsString, IsUrl, IsDateString, IsNotEmpty, IsAlpha } from "class-validator"
+// import { Source } from "../article.schema"
 import { Type } from 'class-transformer'
 import { Schema } from '@nestjs/mongoose'
 
-@Schema()
-export class Haedline {
+export class Source {
     @IsString()
+    id: string;
+    @IsString()
+    name: string;
+}
+
+export class Haedline {
+    @IsNotEmpty()
+    @IsString()
+    @IsAlpha()
     type: string
 
     @IsObject()

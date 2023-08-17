@@ -1,31 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { NewsRepository } from './news.repository';
-import axios from 'axios';
-import { FilterBy } from 'src/models/filterBy.interface';
+import axios, { AxiosRequestConfig } from 'axios';
+import { FilterBy } from 'src/models/filter-by.interface';
+import { EndpointOption, FilterOptions } from 'src/models/filter-options.interface';
 require('dotenv').config()
 
 const API_KEY = process.env.NEWS_API_KEY
 const BASE_URL = `https://newsapi.org/v2/`
-export enum FilterOptions {
-    EVERYTHING = "everything",
-    TOP_HEADLINES = "top-headlines",
-    COUNTRY = "country",
-    CATEGORY = "category",
-    SOURCE = "source",
-    LANGUAGE = "language",
 
-}
 
-export enum EndpointOption {
-    EVERYTHING = "everything?",
-    TOP_HEADLINES = `top-headlines?`,
-
-}
-
-const config: { [key: string]: any } = {
-    headers: {
-        Authorization: `Bearer ${API_KEY}`
-    },
+const config: AxiosRequestConfig = {
+    headers: { Authorization: `Bearer ${API_KEY}` }
 }
 
 @Injectable()
@@ -38,7 +23,7 @@ export class NewsService {
         const encodedQuery = encodeURI(reqQuery)
         //FIX: Couldnt get the response through authorization header
         const completeUrl = `${encodedQuery}apiKey=${API_KEY}`;
-        const res = await axios.get(completeUrl);
+        const res = await axios.get(encodedQuery, config);
         res.data.page = page
         // return response to repository
         if (res.data && res.data.articles && res.data.articles.length > 0) {
