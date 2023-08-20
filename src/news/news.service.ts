@@ -13,6 +13,32 @@ const config: AxiosRequestConfig = {
     headers: { Authorization: `Bearer ${API_KEY}` }
 }
 
+const searchInOptions = ['top-headlines', 'everything']
+const countryHashMap = {
+    name: 'country',
+    value: ['us', 'au', 'br', 'cn', 'de', 'fr', 'hk', 'it', 'il', 'ng', 'ru', ' pl',
+        'za', 'gb', 'ae', 'ar', 'be', 'eg', 'hu', 'pt', 'sa', 'rs', 'th', 'tw'],
+    index: 0
+}
+
+const categoryHashMap = {
+    name: 'category',
+    value: ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'],
+    index: 0
+}
+
+const sourcesHashMap = {
+    name: 'sources',
+    value: ['abc-news', 'axios', 'bbc-news', 'bbc-sport', 'bild', 'bleacher-reoprt', 'bloomberg',
+        'cnn', 'cbs-news', 'espn', 'focus', 'fox-news', 'fox-sports', 'google-news', 'nbc',
+        'new-york-magazine', 'tech-crunch', 'tech-radar', 'the-jerusalem-post', 'the-verge',
+        'the-washington-post', 'the-wall-street-journal', 'usa-today', 'ynet', 'wired', 'time', 'the-washington-times'],
+    index: 0
+}
+
+let searchInIterationIdx = 0
+let useCountry = true
+
 @Injectable()
 export class NewsService {
 
@@ -99,28 +125,28 @@ export class NewsService {
             : reqQuery += EndpointOption.TOP_HEADLINES
 
         if (country !== '') {
-            reqQuery += `country=${country}&`
+            reqQuery += `country = ${country}& `
         }
         if (category !== '') {
-            reqQuery += `category=${category}&`
+            reqQuery += `category = ${category}& `
         }
         if (source !== '') {
-            reqQuery += `sources=${source}&`
+            reqQuery += `sources = ${source}& `
         }
         if (language !== '') {
-            reqQuery += `language=${language}&`
+            reqQuery += `language = ${language}& `
         }
         if (sortBy !== '') {
-            reqQuery += `sortBy=${sortBy}&`
+            reqQuery += `sortBy = ${sortBy}& `
         }
         if (searchQuery) {
-            reqQuery += `q=${searchQuery}&`
+            reqQuery += `q = ${searchQuery}& `
         }
         // if (dates.from !== '' && dates.to !== '') {
-        //     reqQuery += `from=${dates.from}&to=${dates.to}&`
+        //     reqQuery += `from = ${ dates.from }& to=${ dates.to }& `
         // }
         if (page) {
-            reqQuery += `page=${page}`
+            reqQuery += `page = ${page} `
         }
         if (
             reqQuery.startsWith(BASE_URL) &&
@@ -137,6 +163,59 @@ export class NewsService {
             return reqQuery
 
         }
+    }
+
+
+    getNextParameter(searchIn: string) {
+        console.log('searchIn from net parameter:', searchIn)
+        if (searchIn === FilterOptions.TOP_HEADLINES) {
+            if (useCountry) {
+                const queryParameters = { name: countryHashMap.name, value: countryHashMap.value[countryHashMap.index] }
+                // Raise countryHashMap index by one and reset when reaches the end
+                countryHashMap.index = (countryHashMap.index + 1) % countryHashMap.value.length;
+                return queryParameters
+            } else {
+                const queryParameters = { name: categoryHashMap.name, value: categoryHashMap.value[categoryHashMap.index] }
+                // Raise categoryHashMap index by one and reset when reaches the end
+                categoryHashMap.index = (categoryHashMap.index + 1) % categoryHashMap.value.length
+                return queryParameters
+            }
+        } else if (searchIn === FilterOptions.EVERYTHING) {
+            const queryParameters = { name: sourcesHashMap.name, value: sourcesHashMap.value[sourcesHashMap.index] }
+            sourcesHashMap.index = (sourcesHashMap.index + 1) % sourcesHashMap.value.length
+            return queryParameters
+        }
+    }
+
+    async fetchEvery15Minutes() {
+        const searchIn = searchInOptions[searchInIterationIdx % searchInOptions.length]
+        const queryParameters = this.getNextParameter(searchIn)
+        if (searchIn === FilterOptions.TOP_HEADLINES) {
+            // Changes between country & category
+            useCountry = !useCountry
+
+        }
+        const { name, value } = queryParameters
+        // name === country / category value === us / business
+        const url = `${BASE_URL}${searchIn}?${name}=${value}`
+        const encodedQuery = encodeURI(url)
+        const res = await axios.get(encodedQuery, config)
+        const articles = res.data?.articles
+
+        // Add tags to each article
+        const articlesToSave = articles.map(articleData => {
+            const tags = [queryParameters.value]
+            // const type = filterBy.type // Set the type property
+            const article = {
+                ...articleData,
+                // type,
+                tags,
+            }
+            return article
+        })
+        // save article to db
+        this.newsRepository.saveArticlesToDb(articlesToSave)
+        searchInIterationIdx++
     }
 
 }

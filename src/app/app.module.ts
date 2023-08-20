@@ -12,7 +12,7 @@ import { ScheduleModule } from '@nestjs/schedule';
       isGlobal: true,
     }),
     MongooseModule.forRootAsync({
-      imports: [ConfigModule, ScheduleModule.forRoot()],
+      imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('DB_URL'),
         useNewUrlParser: true,
@@ -20,7 +20,9 @@ import { ScheduleModule } from '@nestjs/schedule';
       }),
       inject: [ConfigService],
     }),
-    NewsModule
+    NewsModule,
+    ScheduleModule.forRoot()
+
   ],
   controllers: [AppController],
   providers: [AppService],

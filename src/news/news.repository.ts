@@ -48,6 +48,9 @@ export class NewsRepository implements OnModuleInit {
                             { content: { $regex: searchQuery, $options: 'i' } },
                         ],
                     },
+                    {
+                        $or: [{ 'source.id': query.source }]
+                    }
                 ],
             })
         } else {

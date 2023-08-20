@@ -2,6 +2,7 @@ import { Body, Controller, Get, NotFoundException, Post, Query, Req } from '@nes
 import { NewsService } from './news.service';
 import { FilterBy } from 'src/models/filter-by.interface';
 import { SearchArticlesDto } from './dtos/search-articles.dto';
+import { Cron } from '@nestjs/schedule';
 
 @Controller('news/')
 export class NewsController {
@@ -38,6 +39,13 @@ export class NewsController {
         }
         return articles
 
+    }
+
+    @Cron('0 */15 * * * *')
+    @Get('fetch-every-15-minutes')
+    async fetchEvery15Minutes() {
+        console.log('FETCHING EVERY 15 MINUTES')
+        await this.newsService.fetchEvery15Minutes();
     }
 }
 
