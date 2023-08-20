@@ -22,12 +22,22 @@ export class NewsService {
 
         const encodedQuery = encodeURI(reqQuery)
         //FIX: Couldnt get the response through authorization header
-        const completeUrl = `${encodedQuery}apiKey=${API_KEY}`;
+
         const res = await axios.get(encodedQuery, config);
         res.data.page = page
         // return response to repository
         if (res.data && res.data.articles && res.data.articles.length > 0) {
-            await this.newsRepository.saveArticlesToDb(res.data.articles, filterBy);
+            const articlesToSave = res.data.articles.map(articleData => {
+                const tags = Object.values(filterBy).filter(value => typeof value === 'string' && value !== '')
+                const type = filterBy.type // Set the type property
+                const article = {
+                    ...articleData,
+                    type,
+                    tags,
+                }
+                return article
+            })
+            await this.newsRepository.saveArticlesToDb(articlesToSave);
         }
     }
 
@@ -68,13 +78,13 @@ export class NewsService {
             query.push(filterBy.sortBy)
         }
 
-        if (filterBy.dates && (filterBy.dates.from || filterBy.dates.to)) {
-            query.dates.push(filterBy.dates.from)
-            query.dates.push(filterBy.dates.to)
-        }
-        // if (searchQuery && searchQuery.length > 0) {
-        //     query.searchQuery = searchQuery
+        // if (filterBy.dates && (filterBy.dates.from || filterBy.dates.to)) {
+        //     query.dates.push(filterBy.dates.from)
+        //     query.dates.push(filterBy.dates.to)
         // }
+        if (searchQuery && searchQuery.length > 0) {
+            query.searchQuery = searchQuery
+        }
         console.log('query:', query)
         return query
     }
@@ -106,11 +116,11 @@ export class NewsService {
         if (searchQuery) {
             reqQuery += `q=${searchQuery}&`
         }
-        if (dates.from !== '' && dates.to !== '') {
-            reqQuery += `from=${dates.from}&to=${dates.to}&`
-        }
+        // if (dates.from !== '' && dates.to !== '') {
+        //     reqQuery += `from=${dates.from}&to=${dates.to}&`
+        // }
         if (page) {
-            reqQuery += `page=${page}&`
+            reqQuery += `page=${page}`
         }
         if (
             reqQuery.startsWith(BASE_URL) &&

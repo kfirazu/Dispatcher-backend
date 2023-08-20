@@ -1,14 +1,20 @@
-import { IsString, IsDateString } from "class-validator"
+import { IsString, IsDateString, IsOptional } from "class-validator"
 import { Schema } from '@nestjs/mongoose';
+// import {  ClassTransform } from 'class-transformer'
+
 
 
 
 @Schema()
 export class DatesDto {
 
+    @IsOptional()
     @IsDateString()
-    from: string
+    // @ClassTransform(({ value }) => value.from === '' ? null : value.from)
+    from: string | undefined
 
+    @IsOptional()
     @IsDateString()
-    to: string
+    // @ClassTransform(({ value }) => value.to === '' ? null : value.to)
+    to: string | undefined
 }

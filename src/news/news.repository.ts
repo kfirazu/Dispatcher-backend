@@ -1,9 +1,8 @@
-import { OnModuleInit } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Article, ArticleDocument } from "./article.schema";
-import { Model } from "mongoose";
-import { Headline } from "src/models/headline.interface";
-import { FilterBy } from "src/models/filterBy.interface";
+import { OnModuleInit } from "@nestjs/common"
+import { InjectModel } from "@nestjs/mongoose"
+import { Article, ArticleDocument } from "./article.schema"
+import { Model } from "mongoose"
+import { FilterBy } from "src/models/filter-by.interface"
 
 const PAGE_SIZE = 10
 
@@ -18,48 +17,49 @@ export class NewsRepository implements OnModuleInit {
             console.log('News Database connection is not ready!')
     }
 
-    async saveArticlesToDb(articlesData: ArticleDocument[], filterBy: FilterBy) {
-        const articlesToSave = articlesData.map(articleData => {
-            const tags = Object.values(filterBy).filter(value => typeof value === 'string' && value !== '')
-            const type = filterBy.type // Set the type property
-            const article = new this.articleModel({
-                ...articleData,
-                type,
-                tags,
-            })
-            return article;
-        })
-        // push articles array into mongo articles collection
-        const savedArticles = await this.articleModel.insertMany(articlesToSave);
-        return savedArticles;
+    async saveArticlesToDb(articlesData: ArticleDocument[]) {
+        const articlesToInsert = []
+
+        for (const article of articlesData) {
+            const existingArticle = await this.articleModel.findOne({ url: article.url })
+
+            if (!existingArticle) {
+                articlesToInsert.push(article)
+            }
+        }
+
+        if (articlesToInsert.length > 0) {
+            await this.articleModel.insertMany(articlesToInsert)
+        }
+        return articlesToInsert
     }
 
     async getFilteredArticles(query: any, searchQuery?: string, page?: number) {
-        console.log('searchQuery:', searchQuery)
-        if (searchQuery && searchQuery.length > 0) {
-            let filteredArticles = await this.articleModel
-                .find({ tags: query })
-                .skip((page - 1) * PAGE_SIZE)
-                .limit(PAGE_SIZE)
-                .lean();
-            console.log('filteredArticles before filter by keyword:', filteredArticles)
-            filteredArticles = filteredArticles.filter(article => {
-                return (
-                    article.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    article.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    article.content?.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-            })
-            return filteredArticles
-        } else {
-            const articles = await this.articleModel
-                .find({ tags: query })
-                .skip((page - 1) * PAGE_SIZE)
-                .limit(PAGE_SIZE)
-                .lean();
+        let articlesQuery
 
-            return articles;
+        if (searchQuery && searchQuery.length > 0) {
+            articlesQuery = this.articleModel.find({
+                $and: [
+                    { tags: { $all: query } },
+                    {
+                        $or: [
+                            { title: { $regex: searchQuery, $options: 'i' } },
+                            { description: { $regex: searchQuery, $options: 'i' } },
+                            { content: { $regex: searchQuery, $options: 'i' } },
+                        ],
+                    },
+                ],
+            })
+        } else {
+            articlesQuery = this.articleModel.find({ tags: { $all: query } })
         }
+
+        const articles = await articlesQuery
+            .skip((page - 1) * PAGE_SIZE)
+            .limit(PAGE_SIZE)
+            .lean()
+
+        return articles
     }
 
     async getAllData() {
@@ -67,16 +67,6 @@ export class NewsRepository implements OnModuleInit {
         console.log('allArticles:', allArticles)
         return allArticles
     }
-
-    async getArticlesByCountry(country: string): Promise<Article[]> {
-        const articles = await this.articleModel.find({
-            tags: country,
-        }).lean();
-        // console.log('articles:', articles)
-
-        return articles;
-    }
-
 
 }
 
