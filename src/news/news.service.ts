@@ -3,6 +3,7 @@ import { NewsRepository } from './news.repository';
 import axios, { AxiosRequestConfig } from 'axios';
 import { FilterBy } from 'src/models/filter-by.interface';
 import { EndpointOption, FilterOptions } from 'src/models/filter-options.interface';
+import { Cron } from '@nestjs/schedule';
 require('dotenv').config()
 
 const API_KEY = process.env.NEWS_API_KEY
@@ -13,7 +14,7 @@ const config: AxiosRequestConfig = {
     headers: { Authorization: `Bearer ${API_KEY}` }
 }
 
-const searchInOptions = ['top-headlines', 'everything']
+const searchInOptions = [FilterOptions.TOP_HEADLINES, FilterOptions.EVERYTHING]
 const countryHashMap = {
     name: 'country',
     value: ['us', 'au', 'br', 'cn', 'de', 'fr', 'hk', 'it', 'il', 'ng', 'ru', ' pl',
@@ -47,8 +48,6 @@ export class NewsService {
     async fetchArticlesFromApiAndSaveToDb(reqQuery: string, filterBy: FilterBy, page: number) {
 
         const encodedQuery = encodeURI(reqQuery)
-        //FIX: Couldnt get the response through authorization header
-
         const res = await axios.get(encodedQuery, config);
         res.data.page = page
         // return response to repository
@@ -78,36 +77,45 @@ export class NewsService {
     }
 
     private buildDbQueryFromFilter(filterBy: FilterBy, searchQuery: string) {
+
+        const { country, source, category, type, language, sortBy, from, to } = filterBy
+
         const query: any = [];
 
-        if (filterBy.type) {
-            query.push(filterBy.type)
+        if (type) {
+            query.push(type)
         }
 
-        if (filterBy.source) {
-            query.push(filterBy.source)
+        if (source) {
+            query.push(source)
         }
 
-        if (filterBy.category) {
-            query.push(filterBy.category)
+        if (category) {
+            query.push(category)
         }
 
-        if (filterBy.country) {
-            query.push(filterBy.country)
+        if (country) {
+            query.push(country)
         }
 
-        if (filterBy.language) {
-            query.push(filterBy.language)
+        if (language) {
+            query.push(language)
         }
 
-        if (filterBy.sortBy) {
-            query.push(filterBy.sortBy)
+        if (sortBy) {
+            query.push(sortBy)
         }
 
-        // if (filterBy.dates && (filterBy.dates.from || filterBy.dates.to)) {
-        //     query.dates.push(filterBy.dates.from)
-        //     query.dates.push(filterBy.dates.to)
+        // if (dates && (dates.from || dates.to)) {
+        //     query.dates.push(dates.from)
+        //     query.dates.push(dates.to)
         // }
+        if (from) {
+            query.push(from)
+        }
+        if (to) {
+            query.push(to)
+        }
         if (searchQuery && searchQuery.length > 0) {
             query.searchQuery = searchQuery
         }
@@ -115,7 +123,7 @@ export class NewsService {
     }
 
     buildApiRequestQuery(filterBy: FilterBy, searchQuery: string, page: number) {
-        const { country, source, category, type, language, sortBy, dates } = filterBy
+        const { country, source, category, type, language, sortBy, from, to } = filterBy
         // Build url request string to send to api
         let reqQuery = BASE_URL
 
@@ -124,28 +132,31 @@ export class NewsService {
             : reqQuery += EndpointOption.TOP_HEADLINES
 
         if (country !== '') {
-            reqQuery += `country = ${country}& `
+            reqQuery += `country=${country}&`
         }
         if (category !== '') {
-            reqQuery += `category = ${category}& `
+            reqQuery += `category=${category}&`
         }
         if (source !== '') {
-            reqQuery += `sources = ${source}& `
+            reqQuery += `sources=${source}&`
         }
         if (language !== '') {
-            reqQuery += `language = ${language}& `
+            reqQuery += `language=${language}&`
         }
         if (sortBy !== '') {
-            reqQuery += `sortBy = ${sortBy}& `
+            reqQuery += `sortBy=${sortBy}&`
         }
         if (searchQuery) {
-            reqQuery += `q = ${searchQuery}& `
+            reqQuery += `q=${searchQuery}&`
         }
-        // if (dates.from !== '' && dates.to !== '') {
-        //     reqQuery += `from = ${ dates.from }& to=${ dates.to }& `
-        // }
+        if (from) {
+            reqQuery += `from=${from}&`
+        }
+        if (to) {
+            reqQuery += `to=${to}&`
+        }
         if (page) {
-            reqQuery += `page = ${page} `
+            reqQuery += `page=${page}`
         }
         if (
             reqQuery.startsWith(BASE_URL) &&
@@ -163,7 +174,7 @@ export class NewsService {
     }
 
 
-    getNextParameter(searchIn: string) {
+    getNextParameter(searchIn: FilterOptions) {
         if (searchIn === FilterOptions.TOP_HEADLINES) {
             if (useCountry) {
                 const queryParameters = { name: countryHashMap.name, value: countryHashMap.value[countryHashMap.index] }
@@ -183,6 +194,7 @@ export class NewsService {
         }
     }
 
+    @Cron('0 */15 * * * *')
     async fetchEvery15Minutes() {
         const searchIn = searchInOptions[searchInIterationIdx % searchInOptions.length]
         const queryParameters = this.getNextParameter(searchIn)
@@ -213,5 +225,4 @@ export class NewsService {
         this.newsRepository.saveArticlesToDb(articlesToSave)
         searchInIterationIdx++
     }
-
 }

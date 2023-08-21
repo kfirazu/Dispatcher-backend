@@ -11,10 +11,10 @@ export class DatesDto {
     @IsOptional()
     @IsDateString()
     // @ClassTransform(({ value }) => value.from === '' ? null : value.from)
-    from: string | undefined
+    from?: Date 
 
     @IsOptional()
     @IsDateString()
     // @ClassTransform(({ value }) => value.to === '' ? null : value.to)
-    to: string | undefined
+    to?: Date 
 }

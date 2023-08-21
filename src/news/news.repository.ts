@@ -1,8 +1,7 @@
-import { OnModuleInit } from "@nestjs/common"
-import { InjectModel } from "@nestjs/mongoose"
-import { Article, ArticleDocument } from "./article.schema"
-import { Model } from "mongoose"
-import { FilterBy } from "src/models/filter-by.interface"
+import { OnModuleInit } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Article, ArticleDocument } from "./article.schema";
+import { Model } from "mongoose";
 
 const PAGE_SIZE = 10
 
@@ -29,8 +28,10 @@ export class NewsRepository implements OnModuleInit {
         }
 
         if (articlesToInsert.length > 0) {
+            console.log('inserting data')
             await this.articleModel.insertMany(articlesToInsert)
         }
+        console.log('not inserting data')
         return articlesToInsert
     }
 
