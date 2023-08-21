@@ -111,7 +111,6 @@ export class NewsService {
         if (searchQuery && searchQuery.length > 0) {
             query.searchQuery = searchQuery
         }
-        console.log('query:', query)
         return query
     }
 
@@ -158,8 +157,6 @@ export class NewsService {
                 reqQuery.includes('q='))
         ) {
 
-            // reqQuery += PAGE_SIZE
-
             return reqQuery
 
         }
@@ -167,7 +164,6 @@ export class NewsService {
 
 
     getNextParameter(searchIn: string) {
-        console.log('searchIn from net parameter:', searchIn)
         if (searchIn === FilterOptions.TOP_HEADLINES) {
             if (useCountry) {
                 const queryParameters = { name: countryHashMap.name, value: countryHashMap.value[countryHashMap.index] }

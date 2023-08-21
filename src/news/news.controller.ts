@@ -44,7 +44,6 @@ export class NewsController {
     @Cron('0 */15 * * * *')
     @Get('fetch-every-15-minutes')
     async fetchEvery15Minutes() {
-        console.log('FETCHING EVERY 15 MINUTES')
         await this.newsService.fetchEvery15Minutes();
     }
 }
