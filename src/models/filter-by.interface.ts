@@ -6,10 +6,12 @@ export interface FilterBy {
     country: string;
     language: string;
     sortBy: string;
-    dates: DateOptions; 
+    from?: Date
+    to?: Date
+    // dates?: DateOptions; 
 }
 
 export interface DateOptions {
-    from: string | null
-    to: string | null
+    from?: Date 
+    to?: Date
   }

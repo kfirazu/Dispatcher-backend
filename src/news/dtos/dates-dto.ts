@@ -7,8 +7,10 @@ import { Schema } from '@nestjs/mongoose';
 export class DatesDto {
 
     @IsDateString()
-    from: string
+    // @ClassTransform(({ value }) => value.from === '' ? null : value.from)
+    from?: Date 
 
     @IsDateString()
-    to: string
+    // @ClassTransform(({ value }) => value.to === '' ? null : value.to)
+    to?: Date 
 }

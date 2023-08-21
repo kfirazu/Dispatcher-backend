@@ -2,8 +2,6 @@ import { OnModuleInit } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Article, ArticleDocument } from "./article.schema";
 import { Model } from "mongoose";
-import { Headline } from "src/models/headline.interface";
-import { FilterBy } from "src/models/filterBy.interface";
 
 const PAGE_SIZE = 10
 
@@ -18,20 +16,23 @@ export class NewsRepository implements OnModuleInit {
             console.log('News Database connection is not ready!')
     }
 
-    async saveArticlesToDb(articlesData: ArticleDocument[], filterBy: FilterBy) {
-        const articlesToSave = articlesData.map(articleData => {
-            const tags = Object.values(filterBy).filter(value => typeof value === 'string' && value !== '')
-            const type = filterBy.type // Set the type property
-            const article = new this.articleModel({
-                ...articleData,
-                type,
-                tags,
-            })
-            return article;
-        })
-        // push articles array into mongo articles collection
-        const savedArticles = await this.articleModel.insertMany(articlesToSave);
-        return savedArticles;
+    async saveArticlesToDb(articlesData: ArticleDocument[]) {
+        const articlesToInsert = []
+
+        for (const article of articlesData) {
+            const existingArticle = await this.articleModel.findOne({ url: article.url })
+
+            if (!existingArticle) {
+                articlesToInsert.push(article)
+            }
+        }
+
+        if (articlesToInsert.length > 0) {
+            console.log('inserting data')
+            await this.articleModel.insertMany(articlesToInsert)
+        }
+        console.log('not inserting data')
+        return articlesToInsert
     }
 
     async getFilteredArticles(query: any, searchQuery?: string, page?: number) {
@@ -72,7 +73,6 @@ export class NewsRepository implements OnModuleInit {
         const articles = await this.articleModel.find({
             tags: country,
         }).lean();
-        // console.log('articles:', articles)
 
         return articles;
     }
