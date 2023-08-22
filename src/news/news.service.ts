@@ -29,34 +29,59 @@ export enum EndpointOption {
 
 }
 
-const searchInOptions = [FilterOptions.TOP_HEADLINES, FilterOptions.EVERYTHING]
-const countryHashMap = {
-    name: 'country',
-    value: ['us', 'au', 'br', 'cn', 'de', 'fr', 'hk', 'it', 'il', 'ng', 'ru', ' pl',
-        'za', 'gb', 'ae', 'ar', 'be', 'eg', 'hu', 'pt', 'sa', 'rs', 'th', 'tw'],
-    index: 0
-}
+// const searchInOptions = [FilterOptions.TOP_HEADLINES, FilterOptions.EVERYTHING]
+// const countryHashMap = {
+//     name: 'country',
+//     value: ['us', 'au', 'br', 'cn', 'de', 'fr', 'hk', 'it', 'il', 'ng', 'ru', ' pl',
+//         'za', 'gb', 'ae', 'ar', 'be', 'eg', 'hu', 'pt', 'sa', 'rs', 'th', 'tw'],
+//     index: 0
+// }
 
-const categoryHashMap = {
-    name: 'category',
-    value: ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'],
-    index: 0
-}
+// const categoryHashMap = {
+//     name: 'category',
+//     value: ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'],
+//     index: 0
+// }
 
-const sourcesHashMap = {
-    name: 'sources',
-    value: ['abc-news', 'axios', 'bbc-news', 'bbc-sport', 'bild', 'bleacher-reoprt', 'bloomberg',
-        'cnn', 'cbs-news', 'espn', 'focus', 'fox-news', 'fox-sports', 'google-news', 'nbc',
-        'new-york-magazine', 'tech-crunch', 'tech-radar', 'the-jerusalem-post', 'the-verge',
-        'the-washington-post', 'the-wall-street-journal', 'usa-today', 'ynet', 'wired', 'time', 'the-washington-times'],
-    index: 0
-}
+// const sourcesHashMap = {
+//     name: 'sources',
+//     value: ['abc-news', 'axios', 'bbc-news', 'bbc-sport', 'bild', 'bleacher-reoprt', 'bloomberg',
+//         'cnn', 'cbs-news', 'espn', 'focus', 'fox-news', 'fox-sports', 'google-news', 'nbc',
+//         'new-york-magazine', 'tech-crunch', 'tech-radar', 'the-jerusalem-post', 'the-verge',
+//         'the-washington-post', 'the-wall-street-journal', 'usa-today', 'ynet', 'wired', 'time', 'the-washington-times'],
+//     index: 0
+// }
 
-let searchInIterationIdx = 0
-let useCountry = true
+// let searchInIterationIdx = 0
+// let useCountry = true
 
 @Injectable()
 export class NewsService {
+
+    readonly searchInOptions = [FilterOptions.TOP_HEADLINES, FilterOptions.EVERYTHING];
+    countryHashMap = {
+        name: 'country',
+        value: ['us', 'au', 'br', 'cn', 'de', 'fr', 'hk', 'it', 'il', 'ng', 'ru', ' pl',
+            'za', 'gb', 'ae', 'ar', 'be', 'eg', 'hu', 'pt', 'sa', 'rs', 'th', 'tw'],
+        index: 0
+    };
+    categoryHashMap = {
+        name: 'category',
+        value: ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'],
+        index: 0
+    };
+
+    sourcesHashMap = {
+        name: 'sources',
+        value: ['abc-news', 'axios', 'bbc-news', 'bbc-sport', 'bild', 'bleacher-reoprt', 'bloomberg',
+            'cnn', 'cbs-news', 'espn', 'focus', 'fox-news', 'fox-sports', 'google-news', 'nbc',
+            'new-york-magazine', 'tech-crunch', 'tech-radar', 'the-jerusalem-post', 'the-verge',
+            'the-washington-post', 'the-wall-street-journal', 'usa-today', 'ynet', 'wired', 'time', 'the-washington-times'],
+        index: 0
+    }
+
+    searchInIterationIdx = 0;
+    useCountry = true
 
     constructor(private readonly newsRepository: NewsRepository) { }
 
@@ -91,7 +116,7 @@ export class NewsService {
         return articles
     }
 
-    private buildDbQueryFromFilter(filterBy: FilterBy, searchQuery: string) {
+    buildDbQueryFromFilter(filterBy: FilterBy, searchQuery: string) {
 
         const { country, source, category, type, language, sortBy, from, to } = filterBy
 
@@ -131,9 +156,9 @@ export class NewsService {
         if (to) {
             query.push(to)
         }
-        if (searchQuery && searchQuery.length > 0) {
-            query.searchQuery = searchQuery
-        }
+        // if (searchQuery && searchQuery.length > 0) {
+        //     query.searchQuery = searchQuery
+        // }
         return query
     }
 
@@ -191,31 +216,31 @@ export class NewsService {
 
     getNextParameter(searchIn: FilterOptions) {
         if (searchIn === FilterOptions.TOP_HEADLINES) {
-            if (useCountry) {
-                const queryParameters = { name: countryHashMap.name, value: countryHashMap.value[countryHashMap.index] }
+            if (this.useCountry) {
+                const queryParameters = { name: this.countryHashMap.name, value: this.countryHashMap.value[this.countryHashMap.index] }
                 // Raise countryHashMap index by one and reset when reaches the end
-                countryHashMap.index = (countryHashMap.index + 1) % countryHashMap.value.length;
+                this.countryHashMap.index = (this.countryHashMap.index + 1) % this.countryHashMap.value.length;
                 return queryParameters
             } else {
-                const queryParameters = { name: categoryHashMap.name, value: categoryHashMap.value[categoryHashMap.index] }
+                const queryParameters = { name: this.categoryHashMap.name, value: this.categoryHashMap.value[this.categoryHashMap.index] }
                 // Raise categoryHashMap index by one and reset when reaches the end
-                categoryHashMap.index = (categoryHashMap.index + 1) % categoryHashMap.value.length
+                this.categoryHashMap.index = (this.categoryHashMap.index + 1) % this.categoryHashMap.value.length
                 return queryParameters
             }
         } else if (searchIn === FilterOptions.EVERYTHING) {
-            const queryParameters = { name: sourcesHashMap.name, value: sourcesHashMap.value[sourcesHashMap.index] }
-            sourcesHashMap.index = (sourcesHashMap.index + 1) % sourcesHashMap.value.length
+            const queryParameters = { name: this.sourcesHashMap.name, value: this.sourcesHashMap.value[this.sourcesHashMap.index] }
+            this.sourcesHashMap.index = (this.sourcesHashMap.index + 1) % this.sourcesHashMap.value.length
             return queryParameters
         }
     }
 
     @Cron('0 */15 * * * *')
     async fetchEvery15Minutes() {
-        const searchIn = searchInOptions[searchInIterationIdx % searchInOptions.length]
+        const searchIn = this.searchInOptions[this.searchInIterationIdx % this.searchInOptions.length]
         const queryParameters = this.getNextParameter(searchIn)
         if (searchIn === FilterOptions.TOP_HEADLINES) {
             // Changes between country & category
-            useCountry = !useCountry
+            this.useCountry = !this.useCountry
 
         }
         const { name, value } = queryParameters
@@ -238,6 +263,6 @@ export class NewsService {
         })
         // save article to db
         this.newsRepository.saveArticlesToDb(articlesToSave)
-        searchInIterationIdx++
+        this.searchInIterationIdx++
     }
 }
