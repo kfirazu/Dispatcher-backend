@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { NewsController } from './news.controller'
-import { FilterOptions, NewsService } from './news.service'
-// import { FilterOptions } from 'src/models/filter-options.interface'
+import { FilterOptions } from '../models/filter-options.interface'
 import { Article, ArticleDocument, ArticleSchema } from './article.schema'
 import { NewsRepository } from './news.repository'
 import { Model } from 'mongoose'
 import { FilterBy } from 'src/models/filter-by.interface'
+import { NewsService } from './news.service'
 
 describe('NewsController', () => {
   let newsController: NewsController

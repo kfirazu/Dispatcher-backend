@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { FilterOptions, NewsService } from './news.service'
+// import { FilterOptions, NewsService } from './news.service'
 import { NewsRepository } from './news.repository'
 import { ArticleDocument } from './article.schema'
-import { FilterBy } from 'src/models/filter-by.interface'
-import { filter } from 'rxjs'
+import { FilterBy } from '../models/filter-by.interface'
+import { NewsService } from './news.service'
+import { FilterOptions } from '../models/filter-options.interface'
+
 
 describe('NewsService', () => {
   let service: NewsService
@@ -303,5 +305,9 @@ describe('NewsService', () => {
       expect(result2).toEqual({ name: 'sources', value: 'the-washington-times' });
     });
   })
+
+    /* ---------------------------------------------------------------------------------------------------------- */
+
+
 })
 

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { NewsRepository } from './news.repository';
 import axios, { AxiosRequestConfig } from 'axios';
 import { FilterBy } from 'src/models/filter-by.interface';
-// import { EndpointOption, FilterOptions } from 'src/models/filter-options.interface';
+import { EndpointOption, FilterOptions } from '../models/filter-options.interface';
 import { Cron } from '@nestjs/schedule';
 require('dotenv').config()
 
@@ -14,20 +14,20 @@ const config: AxiosRequestConfig = {
     headers: { Authorization: `Bearer ${API_KEY}` }
 }
 
-export enum FilterOptions {
-    EVERYTHING = "everything",
-    TOP_HEADLINES = "top-headlines",
-    COUNTRY = "country",
-    CATEGORY = "category",
-    SOURCE = "source",
-    LANGUAGE = "language",
+// export enum FilterOptions {
+//     EVERYTHING = "everything",
+//     TOP_HEADLINES = "top-headlines",
+//     COUNTRY = "country",
+//     CATEGORY = "category",
+//     SOURCE = "source",
+//     LANGUAGE = "language",
 
-}
-export enum EndpointOption {
-    EVERYTHING = "everything?",
-    TOP_HEADLINES = `top-headlines?`,
+// }
+// export enum EndpointOption {
+//     EVERYTHING = "everything?",
+//     TOP_HEADLINES = `top-headlines?`,
 
-}
+// }
 
 // const searchInOptions = [FilterOptions.TOP_HEADLINES, FilterOptions.EVERYTHING]
 // const countryHashMap = {
