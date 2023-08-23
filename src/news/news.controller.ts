@@ -1,6 +1,6 @@
 import { Body, Controller, Get, NotFoundException, Post, Query, Req } from '@nestjs/common';
 import { NewsService } from './news.service';
-import { FilterBy } from 'src/models/filter-by.interface';
+import { FilterBy } from '../models/filter-by.interface';
 import { SearchArticlesDto } from './dtos/search-articles.dto';
 import { ApiTags, ApiBody, ApiCreatedResponse } from '@nestjs/swagger'
 import { Article } from './article.schema';
