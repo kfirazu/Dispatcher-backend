@@ -301,12 +301,12 @@ describe('NewsService', () => {
 
       // Set the index to the last source
       service.sourcesHashMap.index = service.sourcesHashMap.value.length - 1;
-      const result2 = service.getNextParameter(FilterOptions.EVERYTHING);
-      expect(result2).toEqual({ name: 'sources', value: 'the-washington-times' });
+      const lastSource = service.getNextParameter(FilterOptions.EVERYTHING);
+      expect(lastSource).toEqual({ name: 'sources', value: service.sourcesHashMap.value[service.sourcesHashMap.value.length - 1] });
     });
   })
 
-    /* ---------------------------------------------------------------------------------------------------------- */
+  /* ---------------------------------------------------------------------------------------------------------- */
 
 
 })

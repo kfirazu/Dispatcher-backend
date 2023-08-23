@@ -17,11 +17,11 @@ export class FilterByDto {
     // @IsAlpha()
     type: string
 
-    @ApiProperty()
-    //     description: 'Filter source',
-    //     example: 'cnn'
+    @ApiProperty({
+        description: 'Filter source',
+        //     example: 'cnn'
 
-    // })
+    })
     @IsString()
     source: string
 
@@ -35,33 +35,32 @@ export class FilterByDto {
 
     @ApiProperty({
         description: 'Filter country',
-        example: 'israel'
+        example: 'il'
 
     })
     @IsString()
     country: string
 
-    @ApiProperty()
-    //     description: 'Filter language',
-    //     example: 'english'
+    @ApiProperty({
+        description: 'Filter language',
+        //     example: 'english'
 
-    // })
+    })
     @IsString()
     language: string
 
     @ApiProperty({
         description: 'Filter sort by',
-        example: 'relevancy'
-
+        // example: 'relevancy'
     })
     @IsString()
     sortBy: string
 
-    @ApiProperty()
-    //     description: 'Filter dates',
-    //     example: { from: '19/08/2023', to: '20/08/2023' }
+    @ApiProperty({
+        description: 'Filter dates',
+        // example: { from: '19/08/2023', to: '20/08/2023' }
 
-    // })
+    })
     // @IsOptional()
     // @ValidateNested()
     // @Type(() => DatesDto)
