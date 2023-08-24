@@ -10,9 +10,9 @@ describe('Your Test Suite', () => {
     let app: INestApplication;
     let articleModel: Model<ArticleDocument>
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         const testingModule: TestingModule = await Test.createTestingModule({
-            imports: [TestModule], 
+            imports: [TestModule],
         }).compile();
 
         app = testingModule.createNestApplication(); // Get the actual app instance
@@ -22,7 +22,7 @@ describe('Your Test Suite', () => {
 
     })
 
-    afterAll(async () => {
+    afterEach(async () => {
         await articleModel.deleteMany({})
         await app.close()
     });
@@ -150,8 +150,8 @@ describe('Your Test Suite', () => {
             })
             .expect(500)
             .then((res) => {
-                console.log('res.status DB:', res.status)
-                console.log('res.body DB:', res.body)
+                // console.log('res.status DB:', res.status)
+                // console.log('res.body DB:', res.body)
                 // expect(res.body).toEqual([])
 
             })
@@ -183,6 +183,26 @@ describe('Your Test Suite', () => {
             })
     });
     it('should throw status code 400 and fail in fetch articles from api due to unacceptable parameters', async () => {
+        const filterByToInsert = {
+            type: 'top-headlines',
+            source: '',
+            category: '',
+            country: 'il',
+            language: '',
+            sortBy: '',
+        };
+
+        // First, insert data into the database
+        await request(app.getHttpServer())
+            .post('/news/save')
+            .send({
+                filterBy: filterByToInsert,
+                searchQuery: '',
+                page: 1,
+            })
+            .expect(201);
+
+        // Now, attempt to fetch data with invalid filterBy properties
         const filterBy = {
             type: 1,
             source: '',
@@ -190,22 +210,21 @@ describe('Your Test Suite', () => {
             country: '',
             language: '',
             sortBy: '',
-            // from?: Date
-            // to?: Date)
-        }
+        };
+
         return request(app.getHttpServer())
-            .post('/news/save')
+            .post('/news/article')
             .send({
                 filterBy: filterBy,
                 searchQuery: '',
-                page: 1
+                page: 1,
             })
             .expect(400)
             .then((res) => {
-                console.log('res.status DB:', res.status)
-                console.log('res.body DB:', res.body)
-                // expect(res.body).toEqual([])
-
-            })
+                console.log('res.status:', res.status);
+                console.log('res.body:', res.body);
+                // Expectations can be added here
+            });
     });
+
 })

@@ -14,47 +14,6 @@ const config: AxiosRequestConfig = {
     headers: { Authorization: `Bearer ${API_KEY}` }
 }
 
-// export enum FilterOptions {
-//     EVERYTHING = "everything",
-//     TOP_HEADLINES = "top-headlines",
-//     COUNTRY = "country",
-//     CATEGORY = "category",
-//     SOURCE = "source",
-//     LANGUAGE = "language",
-
-// }
-// export enum EndpointOption {
-//     EVERYTHING = "everything?",
-//     TOP_HEADLINES = `top-headlines?`,
-
-// }
-
-// const searchInOptions = [FilterOptions.TOP_HEADLINES, FilterOptions.EVERYTHING]
-// const countryHashMap = {
-//     name: 'country',
-//     value: ['us', 'au', 'br', 'cn', 'de', 'fr', 'hk', 'it', 'il', 'ng', 'ru', ' pl',
-//         'za', 'gb', 'ae', 'ar', 'be', 'eg', 'hu', 'pt', 'sa', 'rs', 'th', 'tw'],
-//     index: 0
-// }
-
-// const categoryHashMap = {
-//     name: 'category',
-//     value: ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'],
-//     index: 0
-// }
-
-// const sourcesHashMap = {
-//     name: 'sources',
-//     value: ['abc-news', 'axios', 'bbc-news', 'bbc-sport', 'bild', 'bleacher-reoprt', 'bloomberg',
-//         'cnn', 'cbs-news', 'espn', 'focus', 'fox-news', 'fox-sports', 'google-news', 'nbc',
-//         'new-york-magazine', 'tech-crunch', 'tech-radar', 'the-jerusalem-post', 'the-verge',
-//         'the-washington-post', 'the-wall-street-journal', 'usa-today', 'ynet', 'wired', 'time', 'the-washington-times'],
-//     index: 0
-// }
-
-// let searchInIterationIdx = 0
-// let useCountry = true
-
 @Injectable()
 export class NewsService {
 
@@ -156,9 +115,6 @@ export class NewsService {
         if (to) {
             query.push(to)
         }
-        // if (searchQuery && searchQuery.length > 0) {
-        //     query.searchQuery = searchQuery
-        // }
         return query
     }
 
@@ -234,7 +190,7 @@ export class NewsService {
         }
     }
 
-    @Cron('0 */15 * * * *')
+    @Cron('* */15 * * * *')
     async fetchEvery15Minutes() {
         const searchIn = this.searchInOptions[this.searchInIterationIdx % this.searchInOptions.length]
         const queryParameters = this.getNextParameter(searchIn)
@@ -252,7 +208,7 @@ export class NewsService {
 
         // Add tags to each article
         const articlesToSave = articles.map(articleData => {
-            const tags = [queryParameters.value]
+            const tags = [queryParameters.value, searchIn === FilterOptions.TOP_HEADLINES ? FilterOptions.TOP_HEADLINES : FilterOptions.EVERYTHING]
             // const type = filterBy.type // Set the type property
             const article = {
                 ...articleData,
